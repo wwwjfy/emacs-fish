@@ -37,18 +37,23 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
             (forward-line -1)
             (if (looking-at "^[ \t]*end")
                 (progn
-                  (setq cur-indent (current-indentation))
+                  (forward-line -1)
+                  (setq cur-indent (- (current-indentation) tab-width))
+                  (if (< cur-indent 0)
+                      (setq cur-indent 0))
+                  (forward-line 1)
+                  (indent-line-to cur-indent)
                   (setq not-indented nil))
               ; TODO: one-line function
-              (if (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function \\|if\\|switch\\)")
+              (if (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function \\|if\\|switch\\|while\\)")
                   (progn
                     (setq cur-indent (+ (current-indentation) tab-width))
                     (setq not-indented nil))
                 (if (bobp)
-                    (setq not-indented nil))))))
+                    (setq not-indented nil)))))))
         (if cur-indent
             (indent-line-to cur-indent)
-          (indent-line-to 0))))))
+          (indent-line-to 0)))))
 
 (defun fish-mode ()
   (interactive)
