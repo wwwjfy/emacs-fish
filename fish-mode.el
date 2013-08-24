@@ -25,7 +25,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
   (if (bobp)
       (indent-line-to 0)
     (let ((not-indented t) cur-indent)
-      (if (looking-at "^[ \t]*end")
+      (if (looking-at "^[ \t]*\\(end\\|else\\)")
           (progn
             (save-excursion
               (forward-line -1)
@@ -35,7 +35,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (save-excursion
           (while not-indented
             (forward-line -1)
-            (if (looking-at "^[ \t]*end")
+            (if (looking-at "^[ \t]*\\(end\\|else\\)")
                 (progn
                   (forward-line -1)
                   (setq cur-indent (- (current-indentation) tab-width))
@@ -45,7 +45,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
                   (indent-line-to cur-indent)
                   (setq not-indented nil))
               ; TODO: one-line function
-              (if (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function \\|if\\|switch\\|while\\)")
+              (if (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function\\|if\\|switch\\|while\\)\\>")
                   (progn
                     (setq cur-indent (+ (current-indentation) tab-width))
                     (setq not-indented nil))
