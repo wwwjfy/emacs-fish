@@ -11,11 +11,12 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
    '("\\$\\([[:alpha:]_][[:alnum:]_]*\\)" . font-lock-variable-name-face)))
 
 (defvar fish-mode-syntax-table
-  (let ((fish-mode-syntax-table (make-syntax-table)))
-    (modify-syntax-entry ?# "<")
-    (modify-syntax-entry ?\n ">")
-    (modify-syntax-entry ?\" "\"\"")
-    (modify-syntax-entry ?\' "\"'")))
+  (let ((tab (make-syntax-table text-mode-syntax-table)))
+    (modify-syntax-entry ?\# "<" tab)
+    (modify-syntax-entry ?\n ">" tab)
+    (modify-syntax-entry ?\" "\"\"" tab)
+    (modify-syntax-entry ?\' "\"'" tab)
+    tab))
 
 (defun fish-indent-line ()
   "Indent current line."
@@ -55,15 +56,11 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
             (indent-line-to cur-indent)
           (indent-line-to 0)))))
 
-(defun fish-mode ()
-  (interactive)
-  (kill-all-local-variables)
+(define-derived-mode fish-mode text-mode "Fish"
+  "Major mode for editing fish shell files."
   (setq-local indent-line-function 'fish-indent-line)
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
   (setq-local comment-start "# ")
   (setq-local comment-start-skip "#+[\t ]*"))
-
-(add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
-(add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
 
 (provide 'fish-mode)
