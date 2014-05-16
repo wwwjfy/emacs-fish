@@ -45,11 +45,11 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
                   (forward-line 1)
                   (indent-line-to cur-indent)
                   (setq not-indented nil))
-              ; TODO: one-line function
               (if (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function\\|if\\|switch\\|while\\)\\>")
-                  (progn
-                    (setq cur-indent (+ (current-indentation) tab-width))
-                    (setq not-indented nil))
+                  (if (not (looking-at ".*end$"))
+                      (progn
+                        (setq cur-indent (+ (current-indentation) tab-width))
+                        (setq not-indented nil)))
                 (if (bobp)
                     (setq not-indented nil)))))))
         (if cur-indent
