@@ -56,7 +56,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
             (indent-line-to cur-indent)
           (indent-line-to 0)))))
 
-(define-derived-mode fish-mode text-mode "Fish"
+(define-derived-mode fish-mode prog-mode "Fish"
   "Major mode for editing fish shell files."
   (setq-local indent-line-function 'fish-indent-line)
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
