@@ -36,7 +36,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (save-excursion
           (while not-indented
             (forward-line -1)
-            (if (looking-at "^[ \t]*\\(end\\|else\\)")
+            (if (looking-at "^[ \t]*\\(end\\)")
                 (progn
                   (forward-line -1)
                   (setq cur-indent (- (current-indentation) tab-width))
