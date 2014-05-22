@@ -38,12 +38,9 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
             (forward-line -1)
             (if (looking-at "^[ \t]*\\(end\\)")
                 (progn
-                  (forward-line -1)
-                  (setq cur-indent (- (current-indentation) tab-width))
+                  (setq cur-indent (current-indentation))
                   (if (< cur-indent 0)
                       (setq cur-indent 0))
-                  (forward-line 1)
-                  (indent-line-to cur-indent)
                   (setq not-indented nil))
               (if (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function\\|if\\|switch\\|while\\)\\>")
                   (if (not (looking-at ".*end$"))
