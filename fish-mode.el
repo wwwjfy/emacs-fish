@@ -96,6 +96,12 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
   (setq-local comment-start "# ")
   (setq-local comment-start-skip "#+[\t ]*"))
 
+; specify major mode by shebang
+(add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
+
+; specify major mode by file extension .fish
+(add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
+
 (provide 'fish-mode)
 
 ;;; fish-mode.el ends here
