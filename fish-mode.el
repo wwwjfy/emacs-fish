@@ -89,6 +89,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
             (indent-line-to cur-indent)
           (indent-line-to 0)))))
 
+;;;###autoload
 (define-derived-mode fish-mode prog-mode "Fish"
   "Major mode for editing fish shell files."
   (setq-local indent-line-function 'fish-indent-line)
@@ -96,11 +97,8 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
   (setq-local comment-start "# ")
   (setq-local comment-start-skip "#+[\t ]*"))
 
-; specify major mode by shebang
+;;;###autoload (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
 (add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
-
-; specify major mode by file extension .fish
-(add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
 
 (provide 'fish-mode)
 
