@@ -98,7 +98,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
   (setq-local comment-start-skip "#+[\t ]*"))
 
 ;;;###autoload (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
-(add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
+;;;###autoload (add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
 
 (provide 'fish-mode)
 
