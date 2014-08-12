@@ -52,14 +52,21 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
     (modify-syntax-entry ?\' "\"'" tab)
     tab))
 
+(defun swallow-block ()
+  "move backward line til begin of the block"
+  (let ((not-done t))
+    (while not-done
+      (forward-line -1)
+      (if (looking-at "^[ \t]*end")
+          (swallow-block)
+        (if (looking-at "^[ \t]*\\(begin\\|for\\|function\\|if\\|switch\\|while\\)")
+            (setq not-done nil))))))
+
 (defun get-else-end-indent ()
   (let ((not-indented t) cur-indent)
     (while not-indented
       (forward-line -1)
       (cond
-       ((bobp)
-        (setq cur-indent 0)
-        (setq not-indented nil))
        ((looking-at "^[ \t]*if")
         (setq cur-indent (current-indentation))
         (setq not-indented nil))
@@ -71,8 +78,10 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (setq cur-indent (- (current-indentation) tab-width))
         (setq not-indented nil))
        ((looking-at "^[ \t]*end") ; swallow the block
-        (while (not (looking-at "^[ \t]*\\(begin\\|for\\|function\\|if\\|switch\\|while\\)"))
-          (forward-line -1)))))
+        (swallow-block))
+       ((bobp)
+        (setq cur-indent 0)
+        (setq not-indented nil))))
     (if (< cur-indent 0)
         (setq cur-indent 0)
       cur-indent)))
@@ -82,31 +91,36 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
     (while not-indented
       (forward-line -1)
       (cond
-       ((bobp)
-        (setq cur-indent 0)
-        (setq not-indented nil))
        ((looking-at "^[ \t]*case")
         (setq cur-indent (current-indentation))
         (setq not-indented nil))
        ((looking-at "^[ \t]*switch")
         (message "switch")
         (setq cur-indent (+ (current-indentation) tab-width))
+        (setq not-indented nil))
+       ((bobp)
+        (setq cur-indent 0)
         (setq not-indented nil))))
     (if (< cur-indent 0)
         (setq cur-indent 0)
       cur-indent)))
 
 (defun get-normal-indent ()
-  (let (cur-indent)
-    (forward-line -1)
-    (cond
-     ((bobp)
-      (setq cur-indent 0))
-     ((and (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function\\|if\\|switch\\|while\\)\\>")
-           (not (looking-at ".*end$")))
-      (setq cur-indent (+ (current-indentation) tab-width)))
-     (t
-      (setq cur-indent (current-indentation))))
+  (let ((not-indented t) cur-indent)
+    (while not-indented
+      (forward-line -1)
+      (cond
+       ((and (looking-at "[ \t]*\\(begin\\|case\\|else\\|for\\|function\\|if\\|switch\\|while\\)\\>")
+             (not (looking-at ".*end$")))
+        (setq cur-indent (+ (current-indentation) tab-width))
+        (setq not-indented nil))
+       ((bobp)
+        (setq cur-indent 0)
+        (setq not-indented nil))
+       ((looking-at "[ \t]*$"))
+       (t
+        (setq cur-indent (current-indentation))
+        (setq not-indented nil))))
     (if (< cur-indent 0)
         (setq cur-indent 0)
       cur-indent)))
