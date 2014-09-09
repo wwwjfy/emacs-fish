@@ -52,17 +52,17 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
     (modify-syntax-entry ?\' "\"'" tab)
     tab))
 
-(defun swallow-block ()
+(defun fish-swallow-block ()
   "move backward line til begin of the block"
   (let ((not-done t))
     (while not-done
       (forward-line -1)
       (if (looking-at "^[ \t]*end")
-          (swallow-block)
+          (fish-swallow-block)
         (if (looking-at "^[ \t]*\\(begin\\|for\\|function\\|if\\|switch\\|while\\)")
             (setq not-done nil))))))
 
-(defun get-else-end-indent ()
+(defun fish-get-else-end-indent ()
   (let ((not-indented t) cur-indent)
     (while not-indented
       (forward-line -1)
@@ -78,7 +78,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (setq cur-indent (- (current-indentation) tab-width))
         (setq not-indented nil))
        ((looking-at "^[ \t]*end") ; swallow the block
-        (swallow-block))
+        (fish-swallow-block))
        ((bobp)
         (setq cur-indent 0)
         (setq not-indented nil))))
@@ -86,7 +86,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (setq cur-indent 0)
       cur-indent)))
 
-(defun get-case-indent ()
+(defun fish-get-case-indent ()
   (let ((not-indented t) cur-indent)
     (while not-indented
       (forward-line -1)
@@ -105,7 +105,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (setq cur-indent 0)
       cur-indent)))
 
-(defun get-normal-indent ()
+(defun fish-get-normal-indent ()
   (let ((not-indented t) cur-indent)
     (while not-indented
       (forward-line -1)
@@ -136,12 +136,12 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
       (save-excursion
         (cond
          ((looking-at "^[ \t]*\\(end\\|else\\)")
-          (setq cur-indent (get-else-end-indent)))
+          (setq cur-indent (fish-get-else-end-indent)))
          ((looking-at "^[ \t]*case")
-          (setq cur-indent (get-case-indent))
+          (setq cur-indent (fish-get-case-indent))
           )
          (t
-          (setq cur-indent (get-normal-indent)))))
+          (setq cur-indent (fish-get-normal-indent)))))
       (if cur-indent
           (indent-line-to cur-indent)
         (indent-line-to 0)))))
