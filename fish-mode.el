@@ -128,23 +128,25 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
 (defun fish-indent-line ()
   "Indent current line."
   (interactive)
-  (beginning-of-line)
 
-  (if (bobp)
-      (indent-line-to 0)
-    (let (cur-indent)
-      (save-excursion
-        (cond
-         ((looking-at "^[ \t]*\\(end\\|else\\)")
-          (setq cur-indent (fish-get-else-end-indent)))
-         ((looking-at "^[ \t]*case")
-          (setq cur-indent (fish-get-case-indent))
-          )
-         (t
-          (setq cur-indent (fish-get-normal-indent)))))
-      (if cur-indent
-          (indent-line-to cur-indent)
-        (indent-line-to 0)))))
+  (let ((here (point-marker)))
+    (if (bobp)
+        (indent-line-to 0)
+      (let (cur-indent)
+        (save-excursion
+          (cond
+           ((looking-at "^[ \t]*\\(end\\|else\\)")
+            (setq cur-indent (fish-get-else-end-indent)))
+           ((looking-at "^[ \t]*case")
+            (setq cur-indent (fish-get-case-indent))
+            )
+           (t
+            (setq cur-indent (fish-get-normal-indent)))))
+        (if cur-indent
+            (indent-line-to cur-indent)
+          (indent-line-to 0))))
+    (goto-char here)
+    (set-marker here nil)))
 
 ;;;###autoload
 (define-derived-mode fish-mode prog-mode "Fish"
