@@ -1,5 +1,4 @@
 ;;; fish-mode.el --- Major mode for fish shell scripts  -*- lexical-binding: t; -*-
-;; Version: 20140809.236
 
 ;; Copyright (C) 2014  Tony Wang
 
@@ -129,7 +128,7 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
   "Indent current line."
   (interactive)
 
-  (let ((here (point-marker)))
+  (let ((rpos (- (point-max) (point))))
     (if (bobp)
         (indent-line-to 0)
       (let (cur-indent)
@@ -145,8 +144,9 @@ unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|
         (if cur-indent
             (indent-line-to cur-indent)
           (indent-line-to 0))))
-    (goto-char here)
-    (set-marker here nil)))
+    (if (> (- (point-max) rpos) (point))
+        (goto-char (- (point-max) rpos)))
+    ))
 
 ;;;###autoload
 (define-derived-mode fish-mode prog-mode "Fish"
