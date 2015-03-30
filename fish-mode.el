@@ -36,12 +36,131 @@
 
 (defconst fish-font-lock-keywords-1
   (list
-   '("\\<\\(a\\(?:lias\\|nd\\)\\|b\\(?:egin\\|g\\|ind\\|lock\\|reak\\(?:point\\)?\\|uiltin\\)\\|c\\(?:ase\\|d\\|o\\(?:m\\(?:mand\\(?:line\\)?\\|plete\\)\\|nt\\(?:ains\\|inue\\)\\|unt\\)\\)\\|d\
-ir[hs]\\|e\\(?:cho\\|lse\\|mit\\|nd\\|val\\|x\\(?:ec\\|it\\)\\)\\|f\\(?:g\\|ish\\(?:_\\(?:config\\|indent\\|p\\(?:ager\\|rompt\\)\\|right_prompt\\|update_completions\\)\\|d\\)?\\|or\\|\
-unc\\(?:ed\\|save\\|tions?\\)\\)\\|h\\(?:elp\\|istory\\)\\|i\\(?:f\\|satty\\)\\|jobs\\|m\\(?:ath\\|imedb\\)\\|n\\(?:extd\\|ot\\)\\|o\\(?:pen\\|r\\)\\|p\\(?:opd\\|revd\\|sub\\|\\(?:ush\\
-\|w\\)d\\)\\|r\\(?:andom\\|e\\(?:ad\\|turn\\)\\)\\|s\\(?:et\\(?:_color\\)?\\|ource\\|tatus\\|witch\\)\\|t\\(?:est\\|rap\\|ype\\)\\|u\\(?:limit\\|mask\\)\\|vared\\|while\\)\\_>"
-    . font-lock-builtin-face)
-   '("\\$\\([[:alpha:]_][[:alnum:]_]*\\)" . font-lock-variable-name-face)))
+
+   ;; Builtins
+   `( ,(rx symbol-start
+	   (or
+	    "alias"
+	    "and"
+	    "bg"
+	    "bind"
+	    "block"
+	    "breakpoint"
+	    "builtin"
+	    "cd"
+	    "commandline"
+	    "command"
+	    "complete"
+	    "contains"
+	    "count"
+	    "dirh"
+	    "dirs"
+	    "echo"
+	    "emit"
+	    "eval"
+	    "exec"
+	    "fg"
+	    "fish_config"
+	    "fishd"
+	    "fish_indent"
+	    "fish_pager"
+	    "fish_prompt"
+	    "fish_right_prompt"
+	    "fish"
+	    "fish_update_completions"
+	    "funced"
+	    "funcsave"
+	    "functions"
+	    "help"
+	    "history"
+	    "isatty"
+	    "jobs"
+	    "math"
+	    "mimedb"
+	    "nextd"
+	    "open"
+	    "or"
+	    "popd"
+	    "prevd"
+	    "psub"
+	    "pushd"
+	    "pwd"
+	    "random"
+	    "read"
+	    "set_color"
+	    "source"
+	    "status"
+	    "switch"
+	    "test"
+	    "trap"
+	    "type"
+	    "ulimit"
+	    "umask"
+	    "vared"
+	    )
+	   symbol-end)
+      .
+      font-lock-builtin-face)
+
+   ;; Keywords
+   `( ,(rx symbol-start
+	   (or
+	    "begin"
+	    "break"
+	    "case"
+	    "continue"
+	    "else"
+	    "end"
+	    "exit"
+	    "for"
+	    "function"
+	    "if"
+	    "return"
+	    "set"
+	    "while"
+	    )
+	   symbol-end)
+      .
+      font-lock-keyword-face)
+
+
+   ;; Function name
+   `( ,(rx symbol-start "function"
+	   (1+ space)
+	   (group (1+ (or alnum (syntax symbol)))) symbol-end)
+      1
+      font-lock-function-name-face)
+
+   ;; Variable definition
+   `( ,(rx
+	symbol-start (or (and "set"
+			      (1+ space)
+			      (optional "-" (repeat 1 2 letter) (1+ space)))
+			 (and "for" (1+ space)))
+	(group (1+ (or alnum (syntax symbol)))))
+      1
+      font-lock-variable-name-face)
+
+   ;; Variable substitution
+   `( ,(rx
+	symbol-start (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
+      (1 font-lock-string-face)
+      (2 font-lock-variable-name-face))
+
+   ;; Negation
+   `( ,(rx symbol-start
+	   (or (and (group "not")
+		    symbol-end)))
+      1
+      font-lock-negation-char-face)
+
+   ;; Important
+   `( ,(rx symbol-start (and "set"
+			     (1+ space)
+			     (group (and "-" (repeat 1 2 letter)))
+			     (1+ space)))
+      1
+      font-lock-negation-char-face)))
 
 (defvar fish-mode-syntax-table
   (let ((tab (make-syntax-table text-mode-syntax-table)))
