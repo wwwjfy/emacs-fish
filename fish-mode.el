@@ -90,7 +90,6 @@
 	    "set_color"
 	    "source"
 	    "status"
-	    "switch"
 	    "test"
 	    "trap"
 	    "type"
@@ -117,6 +116,7 @@
 	    "if"
 	    "return"
 	    "set"
+	    "switch"
 	    "while"
 	    )
 	   symbol-end)
