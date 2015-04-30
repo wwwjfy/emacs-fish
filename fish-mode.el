@@ -213,7 +213,6 @@
         (setq cur-indent (current-indentation))
         (setq not-indented nil))
        ((looking-at "^[ \t]*switch")
-        (message "switch")
         (setq cur-indent (+ (current-indentation) tab-width))
         (setq not-indented nil))
        ((bobp)
@@ -252,6 +251,7 @@
         (indent-line-to 0)
       (let (cur-indent)
         (save-excursion
+          (beginning-of-line)
           (cond
            ((looking-at "^[ \t]*\\(end\\|else\\)")
             (setq cur-indent (fish-get-else-end-indent)))
@@ -263,13 +263,13 @@
         (if cur-indent
             (indent-line-to cur-indent)
           (indent-line-to 0))))
-    (if (> (- (point-max) rpos) (point))
-        (goto-char (- (point-max) rpos)))
+    (goto-char (- (point-max) rpos))
     ))
 
 ;;;###autoload
 (define-derived-mode fish-mode prog-mode "Fish"
   "Major mode for editing fish shell files."
+  :syntax-table fish-mode-syntax-table
   (setq-local indent-line-function 'fish-indent-line)
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
   (setq-local comment-start "# ")
