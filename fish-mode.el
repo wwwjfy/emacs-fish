@@ -443,6 +443,8 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
 ;;;###autoload
+(add-to-list 'auto-mode-alist '("/fish_funced\\..*\\'" . fish-mode))
+;;;###autoload
 (add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
 
 (provide 'fish-mode)
