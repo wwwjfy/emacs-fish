@@ -431,6 +431,16 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
 ;;; Mode definition
 
+;;; Comment dwim
+
+(defun fish-comment-dwim (arg)
+  "Comment or uncomment current line or region in a smart way. For details, see `comment-dwim'."
+  (interactive "*P")
+  (require 'newcomment)
+  (let ((comment-start "#")
+        (comment-end ""))
+    (comment-dwim arg)))
+
 ;;;###autoload
 (define-derived-mode fish-mode prog-mode "Fish"
   "Major mode for editing fish shell files."
@@ -438,7 +448,8 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
   (setq-local indent-line-function 'fish-indent-line)
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
   (setq-local comment-start "# ")
-  (setq-local comment-start-skip "#+[\t ]*"))
+  (setq-local comment-start-skip "#+[\t ]*")
+  (define-key fish-mode-map [remap comment-dwim] 'fish-comment-dwim))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
