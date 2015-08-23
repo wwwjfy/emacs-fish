@@ -27,7 +27,11 @@
 ;;  - keyword highlight
 ;;  - basic indent
 ;;  - comment detection
+;;  - run fish_indent for indention
 ;;
+;;  To run fish_indent before save, add the following to init script:
+;;  (add-hook 'fish-mode-hook (lambda ()
+;;                              (add-hook 'before-save-hook 'fish_indent-before-save)))
 
 ;;; Code:
 
@@ -429,7 +433,21 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
     cur-indent))
 
+;;; fish_indent
+(defun fish_indent ()
+  "Indent current buffer using fish_indent"
+  (interactive)
+  (let ((current-point (point)))
+    (call-process-region (point-min) (point-max) "fish_indent" t t nil)
+    (goto-char current-point)
+    ))
+
 ;;; Mode definition
+
+;;;###autoload
+(defun fish_indent-before-save ()
+  (interactive)
+  (when (eq major-mode 'fish-mode) (fish_indent)))
 
 ;;;###autoload
 (define-derived-mode fish-mode prog-mode "Fish"
