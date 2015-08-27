@@ -176,6 +176,11 @@
 
 ;;; Indentation helpers
 
+(defvar fish-basic-offset (if (and (boundp 'c-basic-offset)
+                                   (numberp c-basic-offset))
+                              c-basic-offset
+                            4))
+
 (defvar fish/block-opening-terms
   '("if"
     "function"
@@ -285,9 +290,9 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
          ;; found line that starts with 'else'
          ;; cur-indent is previous non-empty and non-comment line
-         ;; minus tab-width
+         ;; minus fish-basic-offset
          ((looking-at "[ \t]*else")
-          (setq cur-indent (- (fish-get-normal-indent) tab-width)))
+          (setq cur-indent (- (fish-get-normal-indent) fish-basic-offset)))
 
          ;; default case
          ;; cur-indent equals to indentation level of previous
@@ -325,14 +330,14 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
        ;; so increase indentation level
        ((fish/at-open-block?)
         (setq cur-indent (+ (current-indentation)
-                            tab-width)
+                            fish-basic-offset)
               not-indented nil))
 
        ;; found line that starts with 'else' or 'case'
        ;; so increase indentation level
        ((looking-at "[ \t]*\\(else\\|case\\)")
         (setq cur-indent (+ (current-indentation)
-                            tab-width)
+                            fish-basic-offset)
               not-indented nil))
 
        ;; found a line that starts with 'end'
@@ -347,7 +352,7 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
        ;; so we need to decrease indentation level
        ((fish/at-open-end?)
         (setq cur-indent (- (current-indentation)
-                            tab-width)
+                            fish-basic-offset)
               not-indented nil))
 
        ;; default case
@@ -421,7 +426,7 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
        ;; so cur-indent equials to increased
        ;; indentation level of current line
        ((fish/line-contains-open-switch-term?)
-        (setq cur-indent (+ (current-indentation) tab-width)
+        (setq cur-indent (+ (current-indentation) fish-basic-offset)
               not-indented nil))
 
        ;; do nothing
