@@ -181,10 +181,18 @@
     "switch"))
 
 (defun fish/current-line ()
-  "Return the line at point as a string.
-Trailing comment is removed from result."
-  (car (s-split " #" (buffer-substring (line-beginning-position)
-                                       (line-end-position)))))
+  "Return the line at point as a string. Trailing comment is
+removed from result."
+  (let* ((line (buffer-substring (line-beginning-position) (line-end-position)))
+         (comment (fish/trailing-comment line)))
+    (if (s-blank? comment)
+        line
+      (s-replace comment "" line))))
+
+(defun fish/trailing-comment (line)
+  "Return trailing comment in `line' or nil if it doesn't contain
+any."
+  (car (s-match "#.*" (replace-regexp-in-string "\".*\"" "" line))))
 
 (defun fish/fold (f x list)
   "Recursively applies (F i j) to LIST starting with X.
