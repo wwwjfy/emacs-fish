@@ -197,16 +197,32 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
     x2))
 
 (defun fish/count-of-tokens-in-string (tokens string)
-  (fish/fold
-   (lambda (count str)
-     (if (member (replace-regexp-in-string
-                  "\\(.*\\);"
-                  "\\1"
-                  str) tokens)
-         (+ count 1)
-       count))
-   0
-   (split-string string)))
+  (let ((new-token "")
+	(old-token "")
+	(found-p nil)
+	(token-count (fish/fold
+		      (lambda (count str)
+			(if (member (replace-regexp-in-string
+				     "\\(.*\\);"
+				     "\\1"
+				     str) tokens)
+			    (+ count 1)
+			  count))
+		      0
+		      (split-string string))))
+    ;; Check for "if else"
+    (while (and (not found-p)
+		tokens)
+      (setq new-token (pop tokens))
+
+      (if (and (string= old-token "else")
+	       (string= new-token "if"))
+	  (setq found-p t)
+	(setq old-token new-token)))
+
+    (if (eq found-p t)
+	(- token-count 1)
+      token-count)))
 
 (defun fish/at-comment-line? ()
   "Returns t if looking at comment line, nil otherwise."
