@@ -177,12 +177,15 @@
 ;;; Indentation helpers
 
 (defvar fish/block-opening-terms
-  '("if"
-    "function"
-    "while"
-    "for"
-    "begin"
-    "switch"))
+  (mapconcat
+   'identity
+   '("\\s-if\\s-"
+     "\\s-function\\s-"
+     "\\s-while\\s-"
+     "\\s-for\\s-"
+     "\\s-begin\\s-"
+     "\\s-switch\\s-")
+   "\\|"))
 
 (defun fish/current-line ()
   "Return the line at point as a string."
@@ -196,17 +199,19 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
       (setq x2 (funcall f x2 (pop li))))
     x2))
 
-(defun fish/count-of-tokens-in-string (tokens string)
-  (fish/fold
-   (lambda (count str)
-     (if (member (replace-regexp-in-string
-                  "\\(.*\\);"
-                  "\\1"
-                  str) tokens)
-         (+ count 1)
-       count))
-   0
-   (split-string string)))
+(defun fish/count-of-tokens-in-string (token token-to-ignore string)
+  (let ((count 0)
+        (pos 0))
+    (while pos
+      (if (and token-to-ignore
+               (string-match token-to-ignore (fish/current-line) pos))
+          (setq pos (match-end 0)))
+      (if (and token
+               (string-match token (fish/current-line) pos))
+            (setq pos (match-end 0)
+                  count (+ count 1))
+        (setq pos nil)))
+    count))
 
 (defun fish/at-comment-line? ()
   "Returns t if looking at comment line, nil otherwise."
@@ -218,10 +223,11 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
 (defun fish/count-of-opening-terms ()
   (fish/count-of-tokens-in-string fish/block-opening-terms
-                 (fish/current-line)))
+                                  "\\s-else if\\s-"
+                                  (fish/current-line)))
 
 (defun fish/count-of-end-terms ()
-  (fish/count-of-tokens-in-string '("end") (fish/current-line)))
+  (fish/count-of-tokens-in-string "\\s-end\\s-" nil (fish/current-line)))
 
 (defun fish/at-open-block? ()
   "Returns t if line contains block opening term
@@ -246,7 +252,7 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
 (defun fish/line-contains-open-switch-term? ()
   "Returns t if line contains switch term, nil otherwise."
-  (> (fish/count-of-tokens-in-string '("switch") (fish/current-line))
+  (> (fish/count-of-tokens-in-string "\\s-switch\\s-" nil (fish/current-line))
      (fish/count-of-end-terms)))
 
 ;;; Indentation
@@ -331,8 +337,7 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
        ;; found line that starts with 'else' or 'case'
        ;; so increase indentation level
        ((looking-at "[ \t]*\\(else\\|case\\)")
-        (setq cur-indent (+ (current-indentation)
-                            tab-width)
+        (setq cur-indent (+ (current-indentation) tab-width)
               not-indented nil))
 
        ;; found a line that starts with 'end'
