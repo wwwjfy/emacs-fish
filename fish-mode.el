@@ -192,12 +192,19 @@
         (group "in")
         (1+ space)
         ;; list
-        (group (1+ (or alnum
-                       (syntax symbol)
-                       space))))
+        (group (or
+                ;; plain list
+                (1+ (or alnum
+                        (syntax symbol)
+                        space))
+                ;; process substitution
+                (and
+                 (syntax open-parenthesis)
+                 (+? anything)
+                 (syntax close-parenthesis)))))
       (1 font-lock-variable-name-face)
       (2 font-lock-keyword-face)
-      (3 font-lock-string-face))
+      (3 font-lock-string-face t))
 
    ;; Variable substitution
    `( ,(rx
