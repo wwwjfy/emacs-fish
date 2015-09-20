@@ -189,7 +189,32 @@
 			     (group (and "-" (repeat 1 2 letter)))
 			     (1+ space)))
       1
-      font-lock-negation-char-face)))
+      font-lock-negation-char-face)
+
+   ;; Process substitution
+   `( ,(rx
+        (1+ space)
+        (syntax open-parenthesis)
+        ;; command name
+        (group (1+ (or alnum (syntax symbol))))
+        (0+ not-newline)
+        (syntax close-parenthesis))
+      1
+      ;; It would be nice to use the sh-quoted-exec face, but it's only
+      ;; available in sh-mode
+      font-lock-builtin-face)
+
+   ;; Command name
+   `( ,(rx
+        (or line-start
+            ";")
+        (0+ space)
+        (optional (eval `(or ,@fish-keywords))
+                  (1+ space))
+        (group (1+ (or alnum (syntax symbol))))
+        symbol-end)
+      1
+      font-lock-builtin-face)))
 
 (defvar fish-mode-syntax-table
   (let ((tab (make-syntax-table text-mode-syntax-table)))
