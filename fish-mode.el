@@ -172,22 +172,22 @@
 
    ;; Variable substitution
    `( ,(rx
-	symbol-start (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
+        symbol-start (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
       (1 font-lock-string-face)
       (2 font-lock-variable-name-face))
 
    ;; Negation
    `( ,(rx symbol-start
-	   (or (and (group "not")
-		    symbol-end)))
+           (or (and (group "not")
+                    symbol-end)))
       1
       font-lock-negation-char-face)
 
    ;; Important
    `( ,(rx symbol-start (and "set"
-			     (1+ space)
-			     (group (and "-" (repeat 1 2 letter)))
-			     (1+ space)))
+                             (1+ space)
+                             (group (and "-" (repeat 1 2 letter)))
+                             (1+ space)))
       1
       font-lock-negation-char-face)
 
@@ -258,8 +258,8 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
                (string-match token-to-ignore string pos))
           (setq pos (match-end 0)))
       (if (string-match token string pos)
-            (setq pos (match-end 0)
-                  count (+ count 1))
+          (setq pos (match-end 0)
+                count (+ count 1))
         (setq pos nil)))
     count))
 
