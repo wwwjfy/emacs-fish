@@ -129,16 +129,45 @@
       .
       font-lock-keyword-face)
 
-   ;; Function name
-   `( ,(rx symbol-start "function"
+   ;; Function definitions
+
+   ;; Using form:
+   ;;
+   ;; (MATCHER MATCH-HIGHLIGHT MATCH-ANCHORED)
+   ;;
+   ;; The help for "font-lock-keywords" seems to have an error in
+   ;; which it would mean to use the form "(MATCHER MATCH-ANCHORED)",
+   ;; which would leave off the MATCH-HIGHLIGHT for the first MATCHER.
+   ;; However, the example in the help shows the correct form, which
+   ;; is used here.
+
+   ;; It would be nice to highlight less-important options like
+   ;; "description" differently than important ones like "on-event",
+   ;; but I haven't been able to get it working. If I divide the
+   ;; options into two groups, each group is only matched in order
+   ;; (i.e. if an option in the second group appears before an option
+   ;; in the first group, it doesn't match at all). The help for
+   ;; font-lock-keywords doesn't mention anything about matching
+   ;; subsequent MATCH-ANCHORED expressions in order, but it appears
+   ;; to do so.
+   `( ,(rx symbol-start
+           "function"
 	   (1+ space)
-	   (group (1+ (or alnum (syntax symbol)))) symbol-end)
-      1
-      font-lock-function-name-face)
+           ;; Function name
+	   (group (1+ (or alnum (syntax symbol))))
+           symbol-end)
+      (1 font-lock-function-name-face)
+      ;; Function options
+      (,(rx (group symbol-start
+                   (repeat 1 2 "-")
+                   (1+ (or alnum (syntax symbol)))
+                   symbol-end))
+       nil nil
+       (1 font-lock-negation-char-face)))
 
    ;; Variable definition
    `( ,(rx
-	symbol-start
+        symbol-start
         "set"
         (1+ space)
         (optional "-" (repeat 1 2 letter) (1+ space))
