@@ -138,13 +138,37 @@
 
    ;; Variable definition
    `( ,(rx
-	symbol-start (or (and "set"
-			      (1+ space)
-			      (optional "-" (repeat 1 2 letter) (1+ space)))
-			 (and "for" (1+ space)))
-	(group (1+ (or alnum (syntax symbol)))))
+	symbol-start
+        "set"
+        (1+ space)
+        (optional "-" (repeat 1 2 letter) (1+ space))
+        (group (1+ (or alnum (syntax symbol)))))
       1
       font-lock-variable-name-face)
+
+   ;; For loops
+   `( ,(rx
+        ;; Beginning of command or line
+        (or line-start
+            ";")
+        (0+ space)
+        ;; "for" keyword
+        "for"
+        (1+ space)
+        ;; variable name
+        (group (1+ (or alnum
+                       (syntax symbol))))
+        (1+ space)
+        ;; "in"
+        (group "in")
+        (1+ space)
+        ;; list
+        (group (1+ (or alnum
+                       (syntax symbol)
+                       space))))
+      (1 font-lock-variable-name-face)
+      (2 font-lock-keyword-face)
+      (3 font-lock-string-face))
 
    ;; Variable substitution
    `( ,(rx
