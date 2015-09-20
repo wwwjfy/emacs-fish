@@ -235,8 +235,10 @@
 
    ;; Command name
    `( ,(rx
-        (or line-start
-            ";")
+        (or line-start  ;; new line
+            ";" ;; new command
+            "&"  ;; background
+            "|") ;; pipe
         (0+ space)
         (optional (eval `(or ,@fish-keywords))
                   (1+ space))
