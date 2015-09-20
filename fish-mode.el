@@ -44,7 +44,6 @@
    `( ,(rx symbol-start
 	   (or
 	    "alias"
-	    "and"
 	    "bg"
 	    "bind"
 	    "block"
@@ -60,7 +59,6 @@
 	    "dirs"
 	    "echo"
 	    "emit"
-	    "eval"
 	    "exec"
 	    "fg"
 	    "fish_config"
@@ -82,7 +80,6 @@
 	    "mimedb"
 	    "nextd"
 	    "open"
-	    "or"
 	    "popd"
 	    "prevd"
 	    "psub"
@@ -107,16 +104,19 @@
    ;; Keywords
    `( ,(rx symbol-start
 	   (or
+            "and"
 	    "begin"
 	    "break"
 	    "case"
 	    "continue"
 	    "else"
 	    "end"
+            "eval"
 	    "exit"
 	    "for"
 	    "function"
 	    "if"
+            "or"
 	    "return"
 	    "set"
 	    "switch"
@@ -125,7 +125,6 @@
 	   symbol-end)
       .
       font-lock-keyword-face)
-
 
    ;; Function name
    `( ,(rx symbol-start "function"
