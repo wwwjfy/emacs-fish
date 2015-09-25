@@ -35,6 +35,11 @@
 
 ;;; Code:
 
+(unless (fboundp 'setq-local)
+  (defmacro setq-local (var val)
+    "Set variable VAR to value VAL in current buffer."
+    `(set (make-local-variable ',var) ,val)))
+
 ;;; Syntax highlighting
 
 (defconst fish-font-lock-keywords-1
