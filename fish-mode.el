@@ -252,7 +252,12 @@
         (group (1+ (or alnum (syntax symbol))))
         symbol-end)
       1
-      font-lock-builtin-face)))
+      font-lock-builtin-face)
+
+   ;; Numbers
+   `( ,(rx symbol-start (1+ (or digit (char ?.))) symbol-end)
+      .
+      font-lock-constant-face)))
 
 (defvar fish-mode-syntax-table
   (let ((tab (make-syntax-table text-mode-syntax-table)))
