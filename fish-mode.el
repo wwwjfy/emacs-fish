@@ -85,7 +85,6 @@
    "set_color"
    "source"
    "status"
-   "test"
    "trap"
    "type"
    "ulimit"
@@ -110,6 +109,7 @@
    "return"
    "set"
    "switch"
+   "test"
    "while"
    ))
 (defconst fish-font-lock-keywords-1
