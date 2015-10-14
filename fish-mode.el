@@ -117,15 +117,15 @@
 
    ;; Builtins
    `( ,(rx symbol-start
-	   (eval `(or ,@fish-builtins))
-	   symbol-end)
+           (eval `(or ,@fish-builtins))
+           symbol-end)
       .
       font-lock-builtin-face)
 
    ;; Keywords
    `( ,(rx symbol-start
-	   (eval `(or ,@fish-keywords))
-	   symbol-end)
+           (eval `(or ,@fish-keywords))
+           symbol-end)
       .
       font-lock-keyword-face)
 
@@ -164,9 +164,9 @@
 
    `( ,(rx symbol-start
            "function"
-	   (1+ space)
+           (1+ space)
            ;; Function name
-	   (group (1+ (or alnum (syntax symbol))))
+           (group (1+ (or alnum (syntax symbol))))
            symbol-end)
       (1 font-lock-function-name-face)
       ;; Function options
