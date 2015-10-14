@@ -150,6 +150,18 @@
    ;; font-lock-keywords doesn't mention anything about matching
    ;; subsequent MATCH-ANCHORED expressions in order, but it appears
    ;; to do so.
+
+   ;; Backslashes
+   ;; This doesn't highlight backslashes inside strings.  I guess this
+   ;; is a limitation of using the regexp-based syntax highlighting.
+   ;; Also, using `(rx (symbol escape))' doesn't match them, even
+   ;; though I tried adding backslashes to the syntax table as escape
+   ;; chars.
+   `( ,(rx
+        "\\")
+      .
+      font-lock-negation-char-face)
+
    `( ,(rx symbol-start
            "function"
 	   (1+ space)
