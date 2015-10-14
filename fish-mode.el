@@ -219,7 +219,7 @@
       1
       font-lock-negation-char-face)
 
-   ;; Important
+   ;; "set" options
    `( ,(rx symbol-start (and "set"
                              (1+ space)
                              (group (and "-" (repeat 1 2 letter)))
@@ -240,6 +240,13 @@
       ;; available in sh-mode
       font-lock-builtin-face)
 
+   ;; Important characters
+   `( ,(rx symbol-start
+           (or (any "|&")
+               (syntax escape))
+           )
+      .
+      font-lock-negation-char-face)
    ;; Command name
    `( ,(rx
         (or line-start  ;; new line
