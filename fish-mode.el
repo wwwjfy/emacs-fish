@@ -247,6 +247,18 @@
            )
       .
       font-lock-negation-char-face)
+
+   ;; Redirection
+   `( ,(rx
+        (1+ space)
+        (group
+         (any "><^")
+         (optional "&")
+         (optional (1+ space))
+         (1+ (not (any space)))))
+      .
+      font-lock-negation-char-face)
+
    ;; Command name
    `( ,(rx
         (or line-start  ;; new line
