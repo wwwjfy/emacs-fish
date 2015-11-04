@@ -41,134 +41,259 @@
     `(set (make-local-variable ',var) ,val)))
 
 ;;; Syntax highlighting
-
+(defconst fish-builtins
+  (list
+   "alias"
+   "bg"
+   "bind"
+   "block"
+   "breakpoint"
+   "builtin"
+   "cd"
+   "commandline"
+   "command"
+   "complete"
+   "contains"
+   "count"
+   "dirh"
+   "dirs"
+   "echo"
+   "emit"
+   "exec"
+   "fg"
+   "fish_config"
+   "fishd"
+   "fish_indent"
+   "fish_pager"
+   "fish_prompt"
+   "fish_right_prompt"
+   "fish"
+   "fish_update_completions"
+   "funced"
+   "funcsave"
+   "functions"
+   "help"
+   "history"
+   "isatty"
+   "jobs"
+   "math"
+   "mimedb"
+   "nextd"
+   "open"
+   "popd"
+   "prevd"
+   "psub"
+   "pushd"
+   "pwd"
+   "random"
+   "read"
+   "set_color"
+   "source"
+   "status"
+   "trap"
+   "type"
+   "ulimit"
+   "umask"
+   "vared"
+   ))
+(defconst fish-keywords
+  (list
+   "and"
+   "begin"
+   "break"
+   "case"
+   "continue"
+   "else"
+   "end"
+   "eval"
+   "exit"
+   "for"
+   "function"
+   "if"
+   "or"
+   "return"
+   "set"
+   "switch"
+   "test"
+   "while"
+   ))
 (defconst fish-font-lock-keywords-1
   (list
 
    ;; Builtins
    `( ,(rx symbol-start
-	   (or
-	    "alias"
-	    "and"
-	    "bg"
-	    "bind"
-	    "block"
-	    "breakpoint"
-	    "builtin"
-	    "cd"
-	    "commandline"
-	    "command"
-	    "complete"
-	    "contains"
-	    "count"
-	    "dirh"
-	    "dirs"
-	    "echo"
-	    "emit"
-	    "eval"
-	    "exec"
-	    "fg"
-	    "fish_config"
-	    "fishd"
-	    "fish_indent"
-	    "fish_pager"
-	    "fish_prompt"
-	    "fish_right_prompt"
-	    "fish"
-	    "fish_update_completions"
-	    "funced"
-	    "funcsave"
-	    "functions"
-	    "help"
-	    "history"
-	    "isatty"
-	    "jobs"
-	    "math"
-	    "mimedb"
-	    "nextd"
-	    "open"
-	    "or"
-	    "popd"
-	    "prevd"
-	    "psub"
-	    "pushd"
-	    "pwd"
-	    "random"
-	    "read"
-	    "set_color"
-	    "source"
-	    "status"
-	    "test"
-	    "trap"
-	    "type"
-	    "ulimit"
-	    "umask"
-	    "vared"
-	    )
-	   symbol-end)
+           (eval `(or ,@fish-builtins))
+           symbol-end)
       .
       font-lock-builtin-face)
 
    ;; Keywords
    `( ,(rx symbol-start
-	   (or
-	    "begin"
-	    "break"
-	    "case"
-	    "continue"
-	    "else"
-	    "end"
-	    "exit"
-	    "for"
-	    "function"
-	    "if"
-	    "return"
-	    "set"
-	    "switch"
-	    "while"
-	    )
-	   symbol-end)
+           (eval `(or ,@fish-keywords))
+           symbol-end)
       .
       font-lock-keyword-face)
 
+   ;; Function definitions
 
-   ;; Function name
-   `( ,(rx symbol-start "function"
-	   (1+ space)
-	   (group (1+ (or alnum (syntax symbol)))) symbol-end)
-      1
-      font-lock-function-name-face)
+   ;; Using form:
+   ;;
+   ;; (MATCHER MATCH-HIGHLIGHT MATCH-ANCHORED)
+   ;;
+   ;; The help for "font-lock-keywords" seems to have an error in
+   ;; which it would mean to use the form "(MATCHER MATCH-ANCHORED)",
+   ;; which would leave off the MATCH-HIGHLIGHT for the first MATCHER.
+   ;; However, the example in the help shows the correct form, which
+   ;; is used here.
+
+   ;; It would be nice to highlight less-important options like
+   ;; "description" differently than important ones like "on-event",
+   ;; but I haven't been able to get it working. If I divide the
+   ;; options into two groups, each group is only matched in order
+   ;; (i.e. if an option in the second group appears before an option
+   ;; in the first group, it doesn't match at all). The help for
+   ;; font-lock-keywords doesn't mention anything about matching
+   ;; subsequent MATCH-ANCHORED expressions in order, but it appears
+   ;; to do so.
+
+   ;; Backslashes
+   ;; This doesn't highlight backslashes inside strings.  I guess this
+   ;; is a limitation of using the regexp-based syntax highlighting.
+   ;; Also, using `(rx (symbol escape))' doesn't match them, even
+   ;; though I tried adding backslashes to the syntax table as escape
+   ;; chars.
+   `( ,(rx
+        "\\")
+      .
+      font-lock-negation-char-face)
+
+   `( ,(rx symbol-start
+           "function"
+           (1+ space)
+           ;; Function name
+           (group (1+ (or alnum (syntax symbol))))
+           symbol-end)
+      (1 font-lock-function-name-face)
+      ;; Function options
+      (,(rx (group symbol-start
+                   (repeat 1 2 "-")
+                   (1+ (or alnum (syntax symbol)))
+                   symbol-end))
+       nil nil
+       (1 font-lock-negation-char-face)))
 
    ;; Variable definition
    `( ,(rx
-	symbol-start (or (and "set"
-			      (1+ space)
-			      (optional "-" (repeat 1 2 letter) (1+ space)))
-			 (and "for" (1+ space)))
-	(group (1+ (or alnum (syntax symbol)))))
+        symbol-start
+        "set"
+        (1+ space)
+        (optional "-" (repeat 1 2 letter) (1+ space))
+        (group (1+ (or alnum (syntax symbol)))))
       1
       font-lock-variable-name-face)
 
+   ;; For loops
+   `( ,(rx
+        ;; Beginning of command or line
+        (or line-start
+            ";")
+        (0+ space)
+        ;; "for" keyword
+        "for"
+        (1+ space)
+        ;; variable name
+        (group (1+ (or alnum
+                       (syntax symbol))))
+        (1+ space)
+        ;; "in"
+        (group "in")
+        (1+ space)
+        ;; list
+        (group (or
+                ;; plain list
+                (1+ (or alnum
+                        (syntax symbol)
+                        space))
+                ;; process substitution
+                (and
+                 (syntax open-parenthesis)
+                 (+? anything)
+                 (syntax close-parenthesis)))))
+      (1 font-lock-variable-name-face)
+      (2 font-lock-keyword-face)
+      (3 font-lock-string-face t))
+
    ;; Variable substitution
    `( ,(rx
-	symbol-start (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
+        symbol-start (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
       (1 font-lock-string-face)
       (2 font-lock-variable-name-face))
 
    ;; Negation
    `( ,(rx symbol-start
-	   (or (and (group "not")
-		    symbol-end)))
+           (or (and (group "not")
+                    symbol-end)))
       1
       font-lock-negation-char-face)
 
-   ;; Important
+   ;; "set" options
    `( ,(rx symbol-start (and "set"
-			     (1+ space)
-			     (group (and "-" (repeat 1 2 letter)))
-			     (1+ space)))
+                             (1+ space)
+                             (group (and "-" (repeat 1 2 letter)))
+                             (1+ space)))
       1
-      font-lock-negation-char-face)))
+      font-lock-negation-char-face)
+
+   ;; Process substitution
+   `( ,(rx
+        (1+ space)
+        (syntax open-parenthesis)
+        ;; command name
+        (group (1+ (or alnum (syntax symbol))))
+        (0+ not-newline)
+        (syntax close-parenthesis))
+      1
+      ;; It would be nice to use the sh-quoted-exec face, but it's only
+      ;; available in sh-mode
+      font-lock-builtin-face)
+
+   ;; Important characters
+   `( ,(rx symbol-start
+           (or (any "|&")
+               (syntax escape))
+           )
+      .
+      font-lock-negation-char-face)
+
+   ;; Redirection
+   `( ,(rx
+        (1+ space)
+        (group
+         (any "><^")
+         (optional "&")
+         (optional (1+ space))
+         (1+ (not (any space)))))
+      .
+      font-lock-negation-char-face)
+
+   ;; Command name
+   `( ,(rx
+        (or line-start  ;; new line
+            ";" ;; new command
+            "&"  ;; background
+            "|") ;; pipe
+        (0+ space)
+        (optional (eval `(or ,@fish-keywords))
+                  (1+ space))
+        (group (1+ (or alnum (syntax symbol))))
+        symbol-end)
+      1
+      font-lock-builtin-face)
+
+   ;; Numbers
+   `( ,(rx symbol-start (1+ (or digit (char ?.))) symbol-end)
+      .
+      font-lock-constant-face)))
 
 (defvar fish-mode-syntax-table
   (let ((tab (make-syntax-table text-mode-syntax-table)))
@@ -212,8 +337,8 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
                (string-match token-to-ignore string pos))
           (setq pos (match-end 0)))
       (if (string-match token string pos)
-            (setq pos (match-end 0)
-                  count (+ count 1))
+          (setq pos (match-end 0)
+                count (+ count 1))
         (setq pos nil)))
     count))
 
