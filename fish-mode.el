@@ -121,16 +121,20 @@
   (list
 
    ;; Builtins
-   `( ,(rx symbol-start
-           (eval `(or ,@fish-builtins))
-           symbol-end)
+   `( ,(rx-to-string `(and
+                       symbol-start
+                       (eval `(or ,@fish-builtins))
+                       symbol-end)
+                     t)
       .
       font-lock-builtin-face)
 
    ;; Keywords
-   `( ,(rx symbol-start
-           (eval `(or ,@fish-keywords))
-           symbol-end)
+   `( ,(rx-to-string `(and
+                       symbol-start
+                       (eval `(or ,@fish-keywords))
+                       symbol-end)
+                     t)
       .
       font-lock-keyword-face)
 
@@ -277,16 +281,18 @@
       font-lock-negation-char-face)
 
    ;; Command name
-   `( ,(rx
-        (or line-start  ;; new line
-            ";" ;; new command
-            "&"  ;; background
-            "|") ;; pipe
-        (0+ space)
-        (optional (eval `(or ,@fish-keywords))
-                  (1+ space))
-        (group (1+ (or alnum (syntax symbol))))
-        symbol-end)
+   `( ,(rx-to-string
+        `(and
+          (or line-start  ;; new line
+              ";" ;; new command
+              "&"  ;; background
+              "|") ;; pipe
+          (0+ space)
+          (optional (eval `(or ,@fish-keywords))
+                    (1+ space))
+          (group (1+ (or alnum (syntax symbol))))
+          symbol-end)
+        t)
       1
       font-lock-builtin-face)
 
