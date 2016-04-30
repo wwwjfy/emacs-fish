@@ -307,6 +307,7 @@
     (modify-syntax-entry ?\n ">" tab)
     (modify-syntax-entry ?\" "\"\"" tab)
     (modify-syntax-entry ?\' "\"'" tab)
+    (modify-syntax-entry ?\\ "\\" tab)
     tab)
   "Syntax table for `fish-mode'.")
 
