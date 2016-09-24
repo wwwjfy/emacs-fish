@@ -297,7 +297,7 @@
       font-lock-builtin-face)
 
    ;; Numbers
-   `( ,(rx symbol-start (1+ (or digit (char ?.))) symbol-end)
+   `( ,(rx symbol-start (optional "-")(1+ (or digit (char ?.))) symbol-end)
       .
       font-lock-constant-face)))
 
