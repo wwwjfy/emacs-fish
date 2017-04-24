@@ -316,12 +316,12 @@
 (defvar fish/block-opening-terms
   (mapconcat
    'identity
-   '("\\<if\\>"
-     "\\<function\\>"
-     "\\<while\\>"
-     "\\<for\\>"
-     "\\<begin\\>"
-     "\\<switch\\>")
+   '("\\_<if\\_>"
+     "\\_<function\\_>"
+     "\\_<while\\_>"
+     "\\_<for\\_>"
+     "\\_<begin\\_>"
+     "\\_<switch\\_>")
    "\\|"))
 
 (defun fish/current-line ()
