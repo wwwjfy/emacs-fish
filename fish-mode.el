@@ -314,13 +314,14 @@
 ;;; Indentation helpers
 
 (defvar fish/block-opening-terms
-  (rx (or (and symbol-start "if" symbol-end)
-          (and symbol-start "function" symbol-end)
-          (and symbol-start "while" symbol-end)
-          (and symbol-start "for" symbol-end)
-          (and symbol-start "begin" symbol-end)
-          (and symbol-start "switch" symbol-end)
-          )))
+  (rx symbol-start
+      (or "if"
+          "function"
+          "while"
+          "for"
+          "begin"
+          "switch")
+      symbol-end))
 
 (defun fish/current-line ()
   "Return the line at point as a string."
