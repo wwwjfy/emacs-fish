@@ -314,15 +314,13 @@
 ;;; Indentation helpers
 
 (defvar fish/block-opening-terms
-  (mapconcat
-   'identity
-   '("\\_<if\\_>"
-     "\\_<function\\_>"
-     "\\_<while\\_>"
-     "\\_<for\\_>"
-     "\\_<begin\\_>"
-     "\\_<switch\\_>")
-   "\\|"))
+  (rx (or (and symbol-start "if" symbol-end)
+          (and symbol-start "function" symbol-end)
+          (and symbol-start "while" symbol-end)
+          (and symbol-start "for" symbol-end)
+          (and symbol-start "begin" symbol-end)
+          (and symbol-start "switch" symbol-end)
+          )))
 
 (defun fish/current-line ()
   "Return the line at point as a string."
@@ -359,11 +357,11 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
 (defun fish/count-of-opening-terms ()
   (fish/count-of-tokens-in-string fish/block-opening-terms
-                                  "\\<else if\\>"
+                                  (rx symbol-start "else if" symbol-end)
                                   (fish/current-line)))
 
 (defun fish/count-of-end-terms ()
-  (fish/count-of-tokens-in-string "\\<end\\>" nil (fish/current-line)))
+  (fish/count-of-tokens-in-string (rx symbol-start "end" symbol-end) nil (fish/current-line)))
 
 (defun fish/at-open-block? ()
   "Returns t if line contains block opening term
@@ -388,7 +386,7 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
 (defun fish/line-contains-open-switch-term? ()
   "Returns t if line contains switch term, nil otherwise."
-  (> (fish/count-of-tokens-in-string "\\<switch\\>" nil (fish/current-line))
+  (> (fish/count-of-tokens-in-string (rx symbol-start "switch" symbol-end) nil (fish/current-line))
      (fish/count-of-end-terms)))
 
 ;;; Indentation
