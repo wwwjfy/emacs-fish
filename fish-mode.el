@@ -35,6 +35,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (unless (fboundp 'setq-local)
   (defmacro setq-local (var val)
     "Set variable VAR to value VAL in current buffer."
@@ -313,7 +315,7 @@
 
 ;;; Indentation helpers
 
-(defvar fish/block-opening-terms
+(defvar fish/block-opening-terms-re
   (rx symbol-start
       (or "if"
           "function"
@@ -321,7 +323,8 @@
           "for"
           "begin"
           "switch")
-      symbol-end))
+      symbol-end)
+  "Regular expression matching block opening terms.")
 
 (defun fish/current-line ()
   "Return the line at point as a string."
@@ -335,18 +338,25 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
       (setq x2 (funcall f x2 (pop li))))
     x2))
 
-(defun fish/count-of-tokens-in-string (token token-to-ignore string)
-  (let ((count 0)
-        (pos 0))
-    (while pos
-      (if (and token-to-ignore
-               (string-match token-to-ignore string pos))
-          (setq pos (match-end 0)))
-      (if (string-match token string pos)
-          (setq pos (match-end 0)
-                count (+ count 1))
-        (setq pos nil)))
-    count))
+(defun fish/count-tokens-on-current-line (positive-re &optional negative-re)
+  "Return count of matches for POSITIVE-RE that do not also match NEGATIVE-RE on current line.
+POSITIVE-RE and NEGATIVE-RE are regular expressions."
+  (cl-flet ((count-matches (re)
+                           (save-excursion
+                             (cl-loop initially (goto-char (line-beginning-position))
+                                      while (re-search-forward re (line-end-position) t)
+                                      for syntax = (syntax-ppss)
+                                      count (not (or
+                                                  ;; String
+                                                  (nth 3 syntax)
+                                                  ;; Comment
+                                                  (nth 4 syntax)))))))
+    (let ((positive-count (count-matches positive-re))
+          (negative-count (when negative-re
+                            (count-matches negative-re))))
+      (if negative-re
+          (- positive-count negative-count)
+        positive-count))))
 
 (defun fish/at-comment-line? ()
   "Returns t if looking at comment line, nil otherwise."
@@ -357,12 +367,11 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
   (looking-at "[ \t]*$"))
 
 (defun fish/count-of-opening-terms ()
-  (fish/count-of-tokens-in-string fish/block-opening-terms
-                                  (rx symbol-start "else if" symbol-end)
-                                  (fish/current-line)))
+  (fish/count-tokens-on-current-line fish/block-opening-terms-re
+                                     (rx symbol-start "else if" symbol-end)))
 
 (defun fish/count-of-end-terms ()
-  (fish/count-of-tokens-in-string (rx symbol-start "end" symbol-end) nil (fish/current-line)))
+  (fish/count-tokens-on-current-line (rx symbol-start "end" symbol-end) nil))
 
 (defun fish/at-open-block? ()
   "Returns t if line contains block opening term
@@ -387,7 +396,7 @@ For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
 
 (defun fish/line-contains-open-switch-term? ()
   "Returns t if line contains switch term, nil otherwise."
-  (> (fish/count-of-tokens-in-string (rx symbol-start "switch" symbol-end) nil (fish/current-line))
+  (> (fish/count-tokens-on-current-line (rx symbol-start "switch" symbol-end) nil)
      (fish/count-of-end-terms)))
 
 ;;; Indentation
