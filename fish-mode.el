@@ -587,7 +587,7 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   "Indent current buffer using fish_indent"
   (interactive)
   (let ((current-point (point)))
-    (call-process-region (point-min) (point-max) "fish_indent" t t nil)
+    (call-process-region (point-min) (point-max) "fish" t t nil "-c" "fish_indent")
     (goto-char current-point)
     ))
 
