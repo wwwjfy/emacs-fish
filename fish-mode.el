@@ -231,7 +231,7 @@
 
    ;; Variable substitution
    `( ,(rx
-        symbol-start (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
+        (group "$") (group (1+ (or alnum (syntax symbol)))) symbol-end)
       (1 font-lock-string-face)
       (2 font-lock-variable-name-face))
 
@@ -310,6 +310,7 @@
     (modify-syntax-entry ?\" "\"\"" tab)
     (modify-syntax-entry ?\' "\"'" tab)
     (modify-syntax-entry ?\\ "\\" tab)
+    (modify-syntax-entry ?$ "'" tab)
     tab)
   "Syntax table for `fish-mode'.")
 
