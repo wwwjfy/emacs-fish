@@ -37,6 +37,16 @@
 
 (require 'cl-lib)
 
+(defgroup fish nil
+  "Fish shell support."
+  :group 'languages)
+
+(defcustom fish-indent-offset 4
+  "Default indentation offset for Fish."
+  :group 'fish
+  :type 'integer
+  :safe 'integerp)
+
 (unless (fboundp 'setq-local)
   (defmacro setq-local (var val)
     "Set variable VAR to value VAL in current buffer."
@@ -436,9 +446,9 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
 
          ;; found line that starts with 'else'
          ;; cur-indent is previous non-empty and non-comment line
-         ;; minus tab-width
+         ;; minus fish-indent-offset
          ((looking-at "[ \t]*else\\>")
-          (setq cur-indent (- (fish-get-normal-indent) tab-width)))
+          (setq cur-indent (- (fish-get-normal-indent) fish-indent-offset)))
 
          ;; default case
          ;; cur-indent equals to indentation level of previous
@@ -476,13 +486,13 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
        ;; so increase indentation level
        ((fish/at-open-block?)
         (setq cur-indent (+ (current-indentation)
-                            tab-width)
+                            fish-indent-offset)
               not-indented nil))
 
        ;; found line that starts with 'else' or 'case'
        ;; so increase indentation level
        ((looking-at "[ \t]*\\(else\\|case\\)\\>")
-        (setq cur-indent (+ (current-indentation) tab-width)
+        (setq cur-indent (+ (current-indentation) fish-indent-offset)
               not-indented nil))
 
        ;; found a line that starts with 'end'
@@ -497,7 +507,7 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
        ;; so we need to decrease indentation level
        ((fish/at-open-end?)
         (setq cur-indent (- (current-indentation)
-                            tab-width)
+                            fish-indent-offset)
               not-indented nil))
 
        ;; default case
@@ -571,7 +581,7 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
        ;; so cur-indent equials to increased
        ;; indentation level of current line
        ((fish/line-contains-open-switch-term?)
-        (setq cur-indent (+ (current-indentation) tab-width)
+        (setq cur-indent (+ (current-indentation) fish-indent-offset)
               not-indented nil))
 
        ;; do nothing
