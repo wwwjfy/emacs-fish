@@ -97,3 +97,17 @@ echo {$foo}{$bar}
 while foo arg argh
     bar arg argh
 end
+
+switch $a
+    case 1
+        switch $a
+            case 1
+                if true
+                    echo 1
+                end
+            case 2
+                echo 2
+        end
+    case 2
+        echo 2
+end
