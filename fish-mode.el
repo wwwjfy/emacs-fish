@@ -39,6 +39,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(eval-when-compile (require 'subr-x))
 
 (defgroup fish nil
   "Fish shell support."
@@ -49,6 +50,11 @@
   :group 'fish
   :type 'integer
   :safe 'integerp)
+
+(defvar fish-enable-auto-indent nil
+  "Controls auto-indent feature.
+If the value of this variable is non-nil, whenever a word in
+`fish-auto-indent-trigger-keywords' is typed, it is indented instantly.")
 
 (unless (fboundp 'setq-local)
   (defmacro setq-local (var val)
@@ -627,7 +633,7 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (when (member last-command-event fish/auto-indent-trigger-events)
     ;; next check whether the line matches a regexp in
     ;; fish/auto-indent-trigger-regexps
-    (when (some (lambda (x)
+    (when (cl-some (lambda (x)
                   (string-match x (thing-at-point 'line)))
                 fish/auto-indent-trigger-regexps)
       (fish-indent-line)
@@ -667,7 +673,8 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
   (setq-local comment-start "# ")
   (setq-local comment-start-skip "#+[\t ]*")
-  (add-hook 'post-self-insert-hook 'fish/auto-indent nil t))
+  (when fish-enable-auto-indent
+    (add-hook 'post-self-insert-hook 'fish/auto-indent nil t)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
