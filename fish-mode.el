@@ -39,6 +39,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(eval-when-compile (require 'subr-x))
 
 (defgroup fish nil
   "Fish shell support."
@@ -49,6 +50,11 @@
   :group 'fish
   :type 'integer
   :safe 'integerp)
+
+(defvar fish-enable-auto-indent nil
+  "Controls auto-indent feature.
+If the value of this variable is non-nil, whenever a word in
+`fish-auto-indent-trigger-keywords' is typed, it is indented instantly.")
 
 (unless (fboundp 'setq-local)
   (defmacro setq-local (var val)
@@ -327,6 +333,27 @@
     tab)
   "Syntax table for `fish-mode'.")
 
+(defvar fish-auto-indent-trigger-keywords
+  '("end"
+    "else"
+    "case")
+  "Keywords that should trigger auto-indent.")
+
+(defvar fish/auto-indent-trigger-events
+  (let ((trigger-letters
+         (mapcar (lambda (x)
+                   (substring x -1 nil))
+                 fish-auto-indent-trigger-keywords)))
+    (listify-key-sequence
+     (string-join (delete-dups trigger-letters))))
+  "List of key events that should trigger auto-indent.")
+
+(defvar fish/auto-indent-trigger-regexps
+  (mapcar (lambda (x)
+            (concat "[ \t]*" x "\\>"))
+          fish-auto-indent-trigger-keywords)
+  "List of regexps used to determine whether or not to trigger auto-indent.")
+
 ;;; Indentation helpers
 
 (defvar fish/block-opening-terms-re
@@ -599,6 +626,29 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
 
     cur-indent))
 
+(defun fish/auto-indent ()
+  "Auto-indent when a word in FISH-AUTO-INDENT-TRIGGER-KEYWORDS is typed."
+  ;; check last-command-event first because it's less expensive than
+  ;; string-match
+  (when (member last-command-event fish/auto-indent-trigger-events)
+    ;; next check whether the line matches a regexp in
+    ;; fish/auto-indent-trigger-regexps
+    (when (cl-some (lambda (x)
+                  (string-match x (thing-at-point 'line)))
+                fish/auto-indent-trigger-regexps)
+      (fish-indent-line)
+      (fish/auto-indent-post-indent-check (line-number-at-pos)))))
+
+(defun fish/auto-indent-post-indent-check (line-num)
+  "Handle next key event after auto-indenting by re-indenting if we're still on line LINE-NUM."
+  (add-hook 'post-self-insert-hook
+            (defun fish/post-auto-indent ()
+              (when (= (line-number-at-pos) line-num)
+                (fish-indent-line))
+              (remove-hook 'post-self-insert-hook
+                           'fish/post-auto-indent))
+            nil t))
+
 ;;; fish_indent
 (defun fish_indent ()
   "Indent current buffer using fish_indent"
@@ -622,7 +672,9 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (setq-local indent-line-function 'fish-indent-line)
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
   (setq-local comment-start "# ")
-  (setq-local comment-start-skip "#+[\t ]*"))
+  (setq-local comment-start-skip "#+[\t ]*")
+  (when fish-enable-auto-indent
+    (add-hook 'post-self-insert-hook 'fish/auto-indent nil t)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
