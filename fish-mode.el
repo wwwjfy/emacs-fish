@@ -65,6 +65,7 @@ If the value of this variable is non-nil, whenever a word in
 (defconst fish-builtins
   (list
    "alias"
+   "argparse"
    "bg"
    "bind"
    "block"
@@ -78,6 +79,7 @@ If the value of this variable is non-nil, whenever a word in
    "count"
    "dirh"
    "dirs"
+   "disown"
    "echo"
    "emit"
    "exec"
@@ -103,14 +105,17 @@ If the value of this variable is non-nil, whenever a word in
    "open"
    "popd"
    "prevd"
+   "printf"
    "psub"
    "pushd"
    "pwd"
    "random"
    "read"
+   "realpath"
    "set_color"
    "source"
    "status"
+   "string"
    "trap"
    "type"
    "ulimit"
@@ -119,6 +124,8 @@ If the value of this variable is non-nil, whenever a word in
    ))
 (defconst fish-keywords
   (list
+   "&&"
+   "||"
    "and"
    "begin"
    "break"
@@ -128,6 +135,7 @@ If the value of this variable is non-nil, whenever a word in
    "end"
    "eval"
    "exit"
+   "false"
    "for"
    "function"
    "if"
@@ -136,6 +144,7 @@ If the value of this variable is non-nil, whenever a word in
    "set"
    "switch"
    "test"
+   "true"
    "while"
    ))
 (defconst fish-font-lock-keywords-1
