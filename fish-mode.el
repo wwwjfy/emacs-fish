@@ -522,13 +522,13 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
 
        ;; found line that starts with 'else' or 'case'
        ;; so increase indentation level
-       ((looking-at "[ \t]*\\(else\\|case\\)\\>")
+       ((looking-at-p "[ \t]*\\(else\\|case\\)\\>")
         (setq cur-indent (+ (current-indentation) fish-indent-offset)
               not-indented nil))
 
        ;; found a line that starts with 'end'
        ;; so use this line indentation level
-       ((looking-at "[ \t]*end\\>")
+       ((looking-at-p "[ \t]*end\\>")
         (setq cur-indent (current-indentation)
               not-indented nil))
 
