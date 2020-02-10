@@ -541,6 +541,18 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
                             fish-indent-offset)
               not-indented nil))
 
+       ;; After escaped newline.
+       ((looking-at-p (rx (1+ nonl) "\\" eol))
+        (setq cur-indent (+ (current-indentation) fish-indent-offset)
+              not-indented nil))
+
+       ;; Two lines back was escaped newline.
+       ((save-excursion
+          (forward-line -1)
+          (looking-at-p (rx (1+ nonl) "\\" eol)))
+        (setq cur-indent (- (current-indentation) fish-indent-offset)
+              not-indented nil))
+
        ;; default case
        ;; we just set current indentation level
        (t

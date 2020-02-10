@@ -67,13 +67,13 @@ end
 foo arg argh | bar arg argh | baz arg argh
 
 foo \
-| bar arg argh | bar arg argh | baz arg argh
+    | bar arg argh | bar arg argh | baz arg argh
 
 function name
     foo arg argh | bar arg argh
 
     foo arg argh \
-    | bar arg argh | baz arg argh | buzz arg argh
+        | bar arg argh | baz arg argh | buzz arg argh
 end
 
 # ** Process substitution
@@ -111,3 +111,8 @@ switch $a
     case 2
         echo 2
 end
+
+# ** Indentation following escaped newlines
+
+set -l variable \
+    "Pretend this is a very long string."
