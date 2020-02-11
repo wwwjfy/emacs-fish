@@ -39,6 +39,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'xdg)
 (eval-when-compile (require 'subr-x))
 
 (defgroup fish nil
@@ -55,6 +56,20 @@
   "Controls auto-indent feature.
 If the value of this variable is non-nil, whenever a word in
 `fish-auto-indent-trigger-keywords' is typed, it is indented instantly.")
+
+(defvar fish/config-directory
+  (apply #'concat
+         (mapcar #'file-name-as-directory
+                 `(,(xdg-config-home) "fish")))
+  "Location of the fish config directory.")
+
+(defvar fish/functions-directory
+  (concat fish/config-directory (file-name-as-directory "functions"))
+  "Location of the directory that holds user-specified fish functions.")
+
+(defvar fish/function-template
+  "function %s\n\nend"
+  "Template for the fish function definition syntax.")
 
 (unless (fboundp 'setq-local)
   (defmacro setq-local (var val)
@@ -677,6 +692,14 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
     (goto-char current-point)
     ))
 
+(defun fish/user-function? ()
+  "Returns t if the current buffer is pointed at a file in
+  `fish/functions-directory' and has the extension \".fish\"."
+  (let ((filename (buffer-file-name)))
+    (and
+     (string= (file-name-directory filename) fish/functions-directory)
+     (string= (file-name-extension filename) "fish"))))
+
 ;;; Mode definition
 
 ;;;###autoload
@@ -692,8 +715,15 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (setq-local font-lock-defaults '(fish-font-lock-keywords-1))
   (setq-local comment-start "# ")
   (setq-local comment-start-skip "#+[\t ]*")
+
   (when fish-enable-auto-indent
-    (add-hook 'post-self-insert-hook 'fish/auto-indent nil t)))
+    (add-hook 'post-self-insert-hook 'fish/auto-indent nil t))
+
+  (when (and
+         (fish/user-function?)
+         (eq (length (buffer-string)) 0))
+    (insert (format fish/function-template (file-name-base)))
+    (forward-line -1)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode))
