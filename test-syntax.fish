@@ -138,3 +138,38 @@ set -l var \
     (math "1 + 1")
 set -l another_var \
     (math "2 + 2")
+
+# *** Multiple comment lines with continued lines
+
+function print_status
+    foo \
+        bar \
+        baz \
+        quux
+
+    # Comment 1.
+    # Comment 2.
+
+    foo
+    bar
+
+    # Comment 3.
+    foo
+
+    # Comment 4.
+    bar
+
+    # Comment 5.
+    foo
+    # Comment 6.
+    bar
+
+    # Comment 7
+    foo \
+        bar
+    # Comment 8.
+    # Comment 9.
+    foo \
+        bar \
+        baz
+end
