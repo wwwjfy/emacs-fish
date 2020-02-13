@@ -499,7 +499,8 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
 (defun fish-get-normal-indent ()
   "Returns indentation level based on previous non-empty and non-comment line."
   (let ((cur-indent 0)
-        (not-indented t))
+        (not-indented t)
+        skipped-line-p)
     (while (and not-indented
                 (not (bobp)))
 
@@ -507,11 +508,39 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
       (forward-line -1)
 
       (cond
+       ((or (looking-at-p (rx (1+ nonl) "\\" eol))
+            ;; FIXME: This is confusing.  :(
+            (save-excursion
+              (forward-line -1)
+              (looking-at-p (rx (1+ nonl) "\\" eol))))
+        ;; After escaped newline.
+        (cond (skipped-line-p
+               ;; Empty lines have been skipped, so ignore continued
+               ;; lines.  Loop again to find previous non-continued line.
+               nil)
+              ((save-excursion
+                 (forward-line -1)
+                 (looking-at-p (rx (1+ nonl) "\\" eol)))
+               ;; Consecutive continued lines.
+               (setq cur-indent (save-excursion
+                                  ;;  Return indentation of previous non-continued line.
+                                  (cl-loop do (forward-line -1)
+                                           while (looking-at-p (rx (1+ nonl) "\\" eol))
+                                           finally do (forward-line 1))
+                                  (+ (current-indentation) fish-indent-offset))
+                     not-indented nil))
+              (t
+               ;; One continued line.
+               (setq cur-indent (+ (current-indentation) fish-indent-offset)
+                     not-indented nil))))
+
        ;; found empty line, so just skip it
-       ((fish/at-empty-line?))
+       ((fish/at-empty-line?)
+        (setf skipped-line-p t))
 
        ;; found comment line, so just skip it
-       ((fish/at-comment-line?))
+       ((fish/at-comment-line?)
+        (setf skipped-line-p t))
 
        ;; found line that contains an open block
        ;; so increase indentation level
@@ -539,18 +568,6 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
        ((fish/at-open-end?)
         (setq cur-indent (- (current-indentation)
                             fish-indent-offset)
-              not-indented nil))
-
-       ;; After escaped newline.
-       ((looking-at-p (rx (1+ nonl) "\\" eol))
-        (setq cur-indent (+ (current-indentation) fish-indent-offset)
-              not-indented nil))
-
-       ;; Two lines back was escaped newline.
-       ((save-excursion
-          (forward-line -1)
-          (looking-at-p (rx (1+ nonl) "\\" eol)))
-        (setq cur-indent (- (current-indentation) fish-indent-offset)
               not-indented nil))
 
        ;; default case

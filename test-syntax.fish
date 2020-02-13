@@ -116,3 +116,18 @@ end
 
 set -l variable \
     "Pretend this is a very long string."
+
+# ***  Multiple consecutive lines with escaped newlines.
+
+# See <https://github.com/wwwjfy/emacs-fish/issues/37>.
+
+function print_status
+    foo \
+        bar \
+        baz \
+        quux
+end
+
+find . \
+    -type f \
+    -name '*.c'
