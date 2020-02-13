@@ -501,80 +501,79 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (let ((cur-indent 0)
         (not-indented t)
         skipped-line-p)
-    (while (and not-indented
-                (not (bobp)))
+    (cl-labels ((back-to-noncontinued
+                 () (cl-loop do (forward-line -1)
+                             while (line-continued-p)))
+                (line-continued-p
+                 () (save-excursion
+                      (forward-line -1)
+                      (looking-at-p (rx (1+ nonl) "\\" eol))))
+                (line-continues-p
+                 () (looking-at-p (rx (1+ nonl) "\\" eol))))
+      (while (and not-indented (not (bobp)))
 
-      ;; move to previous line
-      (forward-line -1)
-
-      (cond
-       ((or (looking-at-p (rx (1+ nonl) "\\" eol))
-            ;; FIXME: This is confusing.  :(
-            (save-excursion
-              (forward-line -1)
-              (looking-at-p (rx (1+ nonl) "\\" eol))))
-        ;; After escaped newline.
-        (cond (skipped-line-p
-               ;; Empty lines have been skipped, so ignore continued
-               ;; lines.  Loop again to find previous non-continued line.
-               nil)
-              ((save-excursion
-                 (forward-line -1)
-                 (looking-at-p (rx (1+ nonl) "\\" eol)))
-               ;; Consecutive continued lines.
-               (setq cur-indent (save-excursion
-                                  ;;  Return indentation of previous non-continued line.
-                                  (cl-loop do (forward-line -1)
-                                           while (looking-at-p (rx (1+ nonl) "\\" eol))
-                                           finally do (forward-line 1))
-                                  (+ (current-indentation) fish-indent-offset))
+        (cond ((line-continued-p)
+               ;;  Return indentation of previous non-continued line.
+               (back-to-noncontinued)
+               (setq cur-indent (+ (current-indentation) fish-indent-offset)
                      not-indented nil))
               (t
-               ;; One continued line.
-               (setq cur-indent (+ (current-indentation) fish-indent-offset)
-                     not-indented nil))))
+               ;; Line not continued.
 
-       ;; found empty line, so just skip it
-       ((fish/at-empty-line?)
-        (setf skipped-line-p t))
+               ;; move to previous line
+               (forward-line -1)
 
-       ;; found comment line, so just skip it
-       ((fish/at-comment-line?)
-        (setf skipped-line-p t))
+               (cond
+                ((and (not skipped-line-p)
+                      (line-continued-p))
+                 ;;  Return indentation of previous non-continued line.
+                 (back-to-noncontinued)
+                 (setq cur-indent (current-indentation)
+                       not-indented nil))
 
-       ;; found line that contains an open block
-       ;; so increase indentation level
-       ((fish/at-open-block?)
-        (setq cur-indent (+ (current-indentation)
-                            fish-indent-offset)
-              not-indented nil))
+                ;; found empty line, so just skip it
+                ((fish/at-empty-line?)
+                 (back-to-noncontinued)
+                 (setq cur-indent (current-indentation)
+                       not-indented nil))
 
-       ;; found line that starts with 'else' or 'case'
-       ;; so increase indentation level
-       ((looking-at-p "[ \t]*\\(else\\|case\\)\\>")
-        (setq cur-indent (+ (current-indentation) fish-indent-offset)
-              not-indented nil))
+                ;; found comment line, so just skip it
+                ((fish/at-comment-line?)
+                 (setf skipped-line-p t))
 
-       ;; found a line that starts with 'end'
-       ;; so use this line indentation level
-       ((looking-at-p "[ \t]*end\\>")
-        (setq cur-indent (current-indentation)
-              not-indented nil))
+                ;; found line that contains an open block
+                ;; so increase indentation level
+                ((fish/at-open-block?)
+                 (setq cur-indent (+ (current-indentation)
+                                     fish-indent-offset)
+                       not-indented nil))
 
-       ;; found a line that contains open 'end' term
-       ;; and doesn't start with 'end' (the order matters!)
-       ;; it means that this 'end' is indented to the right
-       ;; so we need to decrease indentation level
-       ((fish/at-open-end?)
-        (setq cur-indent (- (current-indentation)
-                            fish-indent-offset)
-              not-indented nil))
+                ;; found line that starts with 'else' or 'case'
+                ;; so increase indentation level
+                ((looking-at-p "[ \t]*\\(else\\|case\\)\\>")
+                 (setq cur-indent (+ (current-indentation) fish-indent-offset)
+                       not-indented nil))
 
-       ;; default case
-       ;; we just set current indentation level
-       (t
-        (setq cur-indent (current-indentation)
-              not-indented nil))))
+                ;; found a line that starts with 'end'
+                ;; so use this line indentation level
+                ((looking-at-p "[ \t]*end\\>")
+                 (setq cur-indent (current-indentation)
+                       not-indented nil))
+
+                ;; found a line that contains open 'end' term
+                ;; and doesn't start with 'end' (the order matters!)
+                ;; it means that this 'end' is indented to the right
+                ;; so we need to decrease indentation level
+                ((fish/at-open-end?)
+                 (setq cur-indent (- (current-indentation)
+                                     fish-indent-offset)
+                       not-indented nil))
+
+                ;; default case
+                ;; we just set current indentation level
+                (t
+                 (setq cur-indent (current-indentation)
+                       not-indented nil)))))))
     cur-indent))
 
 (defun fish-get-end-indent ()

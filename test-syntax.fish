@@ -131,3 +131,10 @@ end
 find . \
     -type f \
     -name '*.c'
+
+# *** Alternating continued and non-continued lines
+
+set -l var \
+    (math "1 + 1")
+set -l another_var \
+    (math "2 + 2")
