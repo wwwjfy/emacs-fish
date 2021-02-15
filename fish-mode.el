@@ -521,11 +521,6 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
           (forward-line -1)
 
           (cond
-           ((line-continued-p)
-            ;;  Return indentation of previous non-continued line.
-            (back-to-non-continued)
-            (throw :indent (current-indentation)))
-
            ((fish/at-empty-line?)
             ;; Return indentation of previous non-continued line.
             (back-to-non-continued)
@@ -553,6 +548,11 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
            ;; so we need to decrease indentation level
            ((fish/at-open-end?)
             (throw :indent (- (current-indentation) fish-indent-offset)))
+
+           ((line-continued-p)
+            ;;  Return indentation of previous non-continued line.
+            (back-to-non-continued)
+            (throw :indent (current-indentation)))
 
            (t
             ;;  Return current indentation.

@@ -125,7 +125,10 @@ function print_status
     foo \
         bar \
         baz \
-        quux
+        quux \
+        while true
+            foo
+        end
 end
 
 find . \
