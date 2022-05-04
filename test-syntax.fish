@@ -18,7 +18,7 @@ end
 foo; for a in 1 2 3; echo $a; end; foo
 
 function name --description "Blah blah"
-    for a in (seq 1 2 3)
+    for a in $(seq 1 2 3)
         echo $a
     end
 
@@ -79,6 +79,7 @@ end
 # ** Process substitution
 
 foo arg argh (bar arg argh)
+foo arg argh $(bar arg argh)
 
 # ** Variables
 

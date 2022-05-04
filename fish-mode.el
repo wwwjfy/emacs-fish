@@ -250,6 +250,7 @@ If the value of this variable is non-nil, whenever a word in
                         space))
                 ;; process substitution
                 (and
+                 (optional "$")
                  (syntax open-parenthesis)
                  (+? anything)
                  (syntax close-parenthesis)))))
@@ -281,6 +282,7 @@ If the value of this variable is non-nil, whenever a word in
    ;; Process substitution
    `( ,(rx
         (1+ space)
+        (optional "$")
         (syntax open-parenthesis)
         ;; command name
         (group (1+ (or alnum (syntax symbol))))
