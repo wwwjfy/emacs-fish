@@ -293,6 +293,9 @@ If the value of this variable is non-nil, whenever a word in
       ;; available in sh-mode
       font-lock-builtin-face)
 
+   ;; Process substitution in the form of $()
+   `( "\\$(\\([^)\n]+\\)" 1 font-lock-builtin-face prepend)
+
    ;; Important characters
    `( ,(rx symbol-start
            (or (any "|&")

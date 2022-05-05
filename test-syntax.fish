@@ -81,6 +81,9 @@ end
 foo arg argh (bar arg argh)
 foo arg argh $(bar arg argh)
 
+echo "hello $(ls)"
+echo "hello (ls)"
+
 # ** Variables
 
 set foo
