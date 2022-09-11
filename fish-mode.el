@@ -705,6 +705,8 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("/fish_funced\\..*\\'" . fish-mode))
 ;;;###autoload
+(add-to-list 'auto-mode-alist '("/fish_variables$" . fish-mode))
+;;;###autoload
 (add-to-list 'interpreter-mode-alist '("fish" . fish-mode))
 
 (provide 'fish-mode)
