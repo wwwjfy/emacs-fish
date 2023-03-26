@@ -1,3 +1,6 @@
+echo hello \
+    world
+
 # ** and/or
 
 foo arg; and bar arg; or baz arg

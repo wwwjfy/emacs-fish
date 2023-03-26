@@ -506,7 +506,7 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (catch :indent
     (cl-labels ((back-to-non-continued
                  () (cl-loop do (forward-line -1)
-                             while (line-continued-p)))
+                             while (and (not (bobp)) (line-continued-p))))
                 (line-continued-p
                  () (save-excursion
                       (forward-line -1)
