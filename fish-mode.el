@@ -387,14 +387,15 @@ If the value of this variable is non-nil, whenever a word in
 
 (defun fish/fold (f x list)
   "Recursively applies (F i j) to LIST starting with X.
-For example, (fold F X '(1 2 3)) computes (F (F (F X 1) 2) 3)."
+For example, (fold F X \\='(1 2 3)) computes (F (F (F X 1) 2) 3)."
   (let ((li list) (x2 x))
     (while li
       (setq x2 (funcall f x2 (pop li))))
     x2))
 
 (defun fish/count-tokens-on-current-line (positive-re &optional negative-re)
-  "Return count of matches for POSITIVE-RE that do not also match NEGATIVE-RE on current line.
+  "Return count of matches for POSITIVE-RE
+   that do not also match NEGATIVE-RE on current line.
 POSITIVE-RE and NEGATIVE-RE are regular expressions."
   (cl-flet ((count-matches (re)
                            (save-excursion
@@ -435,9 +436,9 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
      (fish/count-of-end-terms)))
 
 (defun fish/at-open-end? ()
-  "Returns t if line contains 'end' term and
+  "Returns t if line contains `end' term and
    doesn't contain block opening term that matches
-   this 'end' term. Returns nil otherwise."
+   this `end' term. Returns nil otherwise."
   (> (fish/count-of-end-terms)
      (fish/count-of-opening-terms)))
 
@@ -608,7 +609,7 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
     cur-indent))
 
 (defun fish-get-case-indent ()
-  "Returns indentation level based on matching 'switch' term."
+  "Returns indentation level based on matching `switch' term."
   (let ((cur-indent 0)
         (not-indented t)
         (count-of-ends 0))
@@ -664,7 +665,8 @@ POSITIVE-RE and NEGATIVE-RE are regular expressions."
       (fish/auto-indent-post-indent-check (line-number-at-pos)))))
 
 (defun fish/auto-indent-post-indent-check (line-num)
-  "Handle next key event after auto-indenting by re-indenting if we're still on line LINE-NUM."
+  "Handle next key event after auto-indenting
+   by re-indenting if we're still on line LINE-NUM."
   (add-hook 'post-self-insert-hook
             (defun fish/post-auto-indent ()
               (when (= (line-number-at-pos) line-num)
